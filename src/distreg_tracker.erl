@@ -85,8 +85,8 @@ regglobal([],L) ->
 
 
 -record(dp,{problem_nodes = [], ignored_nodes = []}).
--define(R2P(Record), util:rec2prop(Record, record_info(fields, dp))).
--define(P2R(Prop), util:prop2rec(Prop, dp, #dp{}, record_info(fields, dp))).	
+-define(R2P(Record), distreg_util:rec2prop(Record, record_info(fields, dp))).
+-define(P2R(Prop), distreg_util:prop2rec(Prop, dp, #dp{}, record_info(fields, dp))).	
 
 handle_call({register,Pid,Name},_From,P) ->
 	case regpid(Pid,Name) of
@@ -147,7 +147,7 @@ handle_cast({nodeup,N},P) ->
 handle_cast({nodeup,Callback,N},P) ->
 	handle_info({nodeup,Callback,N},P);
 handle_cast({print_info},P) ->
-	io:format("~p~n", [P]),
+	io:format("~p~n", [?R2P(P)]),
 	{noreply,P};
 handle_cast(_, P) ->
 	{noreply, P}.
