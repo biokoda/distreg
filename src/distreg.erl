@@ -23,10 +23,10 @@ procinfo(Pid) ->
 	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% 							Distributed worker API functions. 
-% 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%
+% 							Distributed worker API functions.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Name: term
 % StartFunction: {Module,Func,Args} | {Module,Func} | {Fun,Param} | Fun/0
 % 	StartFunctionReturn: {ok,Pid} | Pid | anything else for error
@@ -62,7 +62,7 @@ call(Name,Msg,Timeout) ->
 				true ->
 					{error,worker_not_found};
 				false ->
-					rpc:call(Node,distreg,call,[Name,Msg,Timeout])
+					rpc:call(Node,distreg,call,[Name,Msg,Timeout],Timeout)
 			end;
 		Pid ->
 			gen_server:call(Pid,Msg,Timeout)
@@ -119,10 +119,10 @@ node_for_hash(HName,Nodes) ->
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
+%
 % 			Functions for processes that run only on local node.
-% 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Name = term
 % Result: ok | already_named | name_exists
 reg(Name) ->
@@ -132,7 +132,7 @@ reg(Pid,Name) ->
 
 unreg(PidOrName) ->
 	?CALL({unregister,PidOrName}).
-	
+
 whereis(Name) ->
 	case ets:lookup(?NAMET,Name) of
 		[{Name,Pid}] ->
@@ -140,7 +140,7 @@ whereis(Name) ->
 		_ ->
 			undefined
 	end.
-	
+
 % Saves pid to table, but does not set any name.
 track(Pid) ->
 	?CALL({track,Pid}).
@@ -149,10 +149,10 @@ processes() ->
 	ets:tab2list(?NAMET).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
+%
 %						 			Unexported utility functions
-% 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 reg_global(Pid,Name,StartFunction) ->
 	case ?CALL({register_global,Pid,Name}) of
 		ok ->
@@ -307,9 +307,3 @@ test_proc(Home,N) ->
 	end.
 
 -endif.
-
-
-
-
-
-
