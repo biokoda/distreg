@@ -7,7 +7,7 @@
 % When distreg_tracker starts up, check which connected nodes are running distreg. Calc consistent hashing boundaries.
 % Every time a node comes online, check if it is running distreg_tracker.
 % 	If not add it to ignored nodes, but still check again in 10s.
-%   If yes, recalc consistent hashing boundaries and scann the table of processes. 
+%   If yes, recalc consistent hashing boundaries and scann the table of processes.
 % Every time a node goes offline, recalc and scan the table of processes.
 
 regpid(Pid,Name) ->
@@ -86,7 +86,7 @@ regglobal([],L) ->
 
 -record(dp,{problem_nodes = [], ignored_nodes = []}).
 -define(R2P(Record), distreg_util:rec2prop(Record, record_info(fields, dp))).
--define(P2R(Prop), distreg_util:prop2rec(Prop, dp, #dp{}, record_info(fields, dp))).	
+-define(P2R(Prop), distreg_util:prop2rec(Prop, dp, #dp{}, record_info(fields, dp))).
 
 handle_call({register,Pid,Name},_From,P) ->
 	case regpid(Pid,Name) of
@@ -171,28 +171,28 @@ handle_info({nodeup,Node},P) ->
 handle_info({nodeup,Callback,Node},P) ->
 	% Check if this gen_server is running on that node.
 	spawn(fun() ->
-						case is_node_participating(Node) of
-							true ->
-								case Callback of
-									true ->
-										% This is a safety measure to prevent inconsistencies where
-										% 	a node thinking some other node is not participating
-										rpc:cast(Node,gen_server,cast,[?MODULE,{nodeup,false,Node}]);
-									false ->
-										ok
-								end,
-								case lists:member(Node,P#dp.ignored_nodes) of
-									true ->
-										gen_server:cast(?MODULE,{nolonger_ignored,Node}),
-										NL = lists:delete(Node,P#dp.ignored_nodes);
-									false ->
-										NL = P#dp.ignored_nodes
-								end,
-								save_nodeinfo_op(NL);
-							false ->
-								gen_server:cast(?MODULE,{ignore_node,Node})
-						end
-				end),
+		case is_node_participating(Node) of
+			true ->
+				case Callback of
+					true ->
+						% This is a safety measure to prevent inconsistencies where
+						% 	a node thinking some other node is not participating
+						rpc:cast(Node,gen_server,cast,[?MODULE,{nodeup,false,Node}]);
+					false ->
+						ok
+				end,
+				case lists:member(Node,P#dp.ignored_nodes) of
+					true ->
+						gen_server:cast(?MODULE,{nolonger_ignored,Node}),
+						NL = lists:delete(Node,P#dp.ignored_nodes);
+					false ->
+						NL = P#dp.ignored_nodes
+				end,
+				save_nodeinfo_op(NL);
+			false ->
+				gen_server:cast(?MODULE,{ignore_node,Node})
+		end
+	end),
 	{noreply,P};
 handle_info({nodedown,_},P) ->
 	save_nodeinfo(P#dp.ignored_nodes),
@@ -201,9 +201,9 @@ handle_info({stop},P) ->
 	handle_info({stop,noreason},P);
 handle_info({stop,Reason},P) ->
 	{stop, Reason, P};
-handle_info(_, P) -> 
+handle_info(_, P) ->
 	{noreply, P}.
-	
+
 terminate(_, _) ->
 	ok.
 code_change(_, P, _) ->
@@ -288,7 +288,7 @@ save_nodeinfo_op(IgnoredNodes) ->
 														false ->
 															WorkersToMove
 													end
-											end 
+											end
 										end,[],?NAMET_GLOBAL),
 					ToMove = group(ToMove1,[]),
 					[begin
@@ -347,6 +347,3 @@ print_info() ->
 	gen_server:cast(?MODULE,{print_info}).
 reload() ->
 	gen_server:call(?MODULE, {reload}).
-
-
-
