@@ -128,11 +128,11 @@ node_for_hash(HName,Nodes) ->
 reg(Name) ->
 	reg(self(),Name).
 reg(Pid,Name) ->
-	?CALL({register,Pid,Name}).
+	(catch ?CALL({register,Pid,Name})).
 
 unreg(PidOrName) ->
-	?CALL({unregister,PidOrName}).
-	
+	(catch ?CALL({unregister,PidOrName})).
+
 whereis(Name) ->
 	case ets:lookup(?NAMET,Name) of
 		[{Name,Pid}] ->
